@@ -1,5 +1,12 @@
-import { ParseIntPipe } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { ParseArrayPipe, ParseIntPipe } from '@nestjs/common';
+import {
+  Args,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import * as GraphQLTypes from 'src/graphql-types';
 import { CoffeesService } from './coffees.service';
@@ -14,8 +21,18 @@ export class CoffeesResolver {
   ) {}
 
   @Query()
-  async coffees(): Promise<GraphQLTypes.Coffee[]> {
-    return this.coffeesService.findAll();
+  async coffees(
+    @Args(
+      'ids',
+      new ParseArrayPipe({ items: Number, separator: ',', optional: true }),
+    )
+    ids: number[],
+  ): Promise<GraphQLTypes.Coffee[]> {
+    if (!ids) {
+      return this.coffeesService.findAll();
+    }
+
+    return this.coffeesService.findMany(ids);
   }
 
   @Query('coffee')

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInputError } from 'apollo-server-express';
 import { PubSub } from 'graphql-subscriptions';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateCoffeeInput } from './dto/create-coffee.input/create-coffee.input';
 import { UpdateCoffeeInput } from './dto/update-coffee.input/update-coffee.input';
 import { Coffee } from './entities/coffee.entity/coffee.entity';
@@ -29,6 +29,10 @@ export class CoffeesService {
     }
 
     return coffee;
+  }
+
+  async findMany(ids: number[]): Promise<Coffee[]> {
+    return this.coffeesRepository.find({ where: { id: In(ids) } });
   }
 
   async create(createCoffeeInput: CreateCoffeeInput): Promise<Coffee> {
